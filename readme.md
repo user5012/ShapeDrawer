@@ -30,3 +30,29 @@ A simple Java desktop application that allows users to draw, select, and move ba
 git clone https://github.com/user5012/ShapeDrawer.git
 cd shape-drawer
 ```
+
+### Build the Project
+
+```bash
+gradle build
+```
+
+### Run the Project
+
+```bash
+gradle run
+```
+
+## Future Enhancements
+
+- Add undo/redo functionality
+
+- Support for color and stroke width customization
+
+- Save and load drawing projects
+
+- Export as image
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
