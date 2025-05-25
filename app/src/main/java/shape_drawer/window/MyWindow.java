@@ -40,7 +40,7 @@ public class MyWindow {
     private DrawnLine currLine = null;
 
     public MyWindow() {
-        this.title = "My Window"; // Set the title of the window
+        this.title = "Shape Drawer"; // Set the title of the window
         this.width = 400; // Set the width of the window
         this.height = 800; // Set the height of the window
         this.buttons = createButtons(); // Create buttons for the window
