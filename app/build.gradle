@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 jar {
@@ -32,12 +33,26 @@ dependencies {
 
     // This dependency is used by the application.
     implementation libs.guava
+    implementation 'com.google.code.gson:gson:2.13.1'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+shadowJar {
+    // Configure the shadow JAR task to create a fat JAR.
+    archiveBaseName.set('shape-drawer')
+    archiveClassifier.set('')
+    archiveVersion.set('1.1.0')
+    mergeServiceFiles()
+    manifest {
+        attributes(
+            'Main-Class': 'shape_drawer.App'
+        )
     }
 }
 

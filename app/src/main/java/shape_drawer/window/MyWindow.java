@@ -3,10 +3,13 @@ package shape_drawer.window;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
+import shape_drawer.config.MySettings;
 import shape_drawer.shape.Circle;
 import shape_drawer.shape.DrawnLine;
 import shape_drawer.shape.MyShape;
@@ -16,9 +19,12 @@ import shape_drawer.usefull.Vector2d;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
+import java.io.File;;
 
 public class MyWindow {
     public static enum ButtonPressedType {
@@ -38,6 +44,7 @@ public class MyWindow {
     private Vector2d canvasDimensionsVector2d = new Vector2d(500, 500); // Variable to store mouse position
     private JPanel canva = new JPanel(); // Panel to draw shapes
     private DrawnLine currLine = null;
+    private MySettings settings = new MySettings(); // Settings object to manage save path
 
     public MyWindow() {
         this.title = "Shape Drawer"; // Set the title of the window
@@ -124,10 +131,18 @@ public class MyWindow {
             currLine = null; // Clear the current line
             frame.repaint(); // Repaint the frame to update the shapes
         }));
+        buttons.add(createButton("Export Image", 100, 50, 100, 170, () -> {
+            // saveImage(getJSONPath()); // Call the saveImage method to export the image
+
+            SwingUtilities.invokeLater(() -> saveImage(settings.getSavePath())); // Use SwingUtilities to ensure the
+                                                                                 // saveImage
+            // method is called on the Event Dispatch Thread
+        }));
         return buttons;
     }
 
     public void ShowWindow() {
+        frame.pack(); // Pack the frame to fit the components
         frame.setVisible(true);
         initializeMouseListeners(); // Call the mouse handler to check for clicks
     }
@@ -136,6 +151,60 @@ public class MyWindow {
         frame.repaint(); // Repaint the frame to update the shapes
         canvas(canvasDimensionsVector2d.getX(), canvasDimensionsVector2d.getY()).repaint(); // Repaint the panel to
                                                                                             // update the shapes
+    }
+
+    private void saveImage(String savePath) {
+        if (canva == null) {
+            System.err.println("Error: Canvas is not initialized. Cannot export image.");
+            return; // Abort if the canvas is not initialized to avoid crash
+        }
+        canva.revalidate();
+        canva.doLayout();
+        canva.repaint();
+
+        Dimension preferredSize = canva.getPreferredSize();
+
+        int width = preferredSize.width; // Get the width of the canvas
+        int height = preferredSize.height; // Get the height of the canvas
+        if (width <= 0 || height <= 0) {
+            System.err.println(
+                    "Error: Canvas size is invalid. Cannot export image.\nWidth: " + width + ", Height: " + height);
+            return; // Abort if the canvas size is invalid to avoid crash
+        }
+
+        // Use preferred size if actual size is not valid yet
+        /*
+         * if (width <= 0 || height <= 0) {
+         * Dimension preferredSize = canva.getPreferredSize();
+         * width = preferredSize.width;
+         * height = preferredSize.height;
+         * 
+         * // Still bad? Abort to avoid crash
+         * if (width <= 0 || height <= 0) {
+         * System.err.println("Error: Canvas size is invalid. Cannot export image.");
+         * return;
+         * }
+         * }
+         */
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+        g2d.setColor(canva.getBackground());
+        g2d.fillRect(0, 0, width, height);
+
+        // Paint shapes directly
+        for (MyShape shape : shapes) {
+            shape.draw(g2d);
+        }
+
+        g2d.dispose(); // Dispose of the graphics context to release resources
+
+        try {
+            ImageIO.write(image, "png", new File(savePath));
+            System.out.println("Image saved to " + savePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initializeMouseListeners() {
