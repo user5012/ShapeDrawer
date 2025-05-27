@@ -5,8 +5,11 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 import shape_drawer.config.MySettings;
@@ -138,6 +141,29 @@ public class MyWindow {
                                                                                  // saveImage
             // method is called on the Event Dispatch Thread
         }));
+        buttons.add(createButton("change Save Path", 100, 50, 100, 210, () -> {
+            java.util.List<JComponent> components = new ArrayList<>();
+
+            // Create a mutable holder for subWindow
+            final MySubWindow[] subWindow = new MySubWindow[1];
+
+            components.add(new JLabel("Enter new save path:"));
+            JTextField pathField = new JTextField(settings.getSavePath(), 20);
+            components.add(pathField);
+
+            JButton saveButton = createButton("Save", 100, 50, 100, 250, () -> {
+                String newPath = pathField.getText();
+                settings.updateJson(newPath);
+                settings.setSavePath(newPath);
+                subWindow[0].exit(); // Access the real subWindow object
+            });
+            components.add(saveButton);
+
+            // Now create and assign the subWindow
+            subWindow[0] = new MySubWindow(frame, "Change Save Path", 300, 200, components, false);
+            subWindow[0].show(); // Show the subWindow
+        }));
+
         return buttons;
     }
 

@@ -32,7 +32,7 @@ public class MySettings {
         }
     }
 
-    private void updateJson(String savePath) {
+    public void updateJson(String savePath) {
         JsonObject settings = new JsonObject();
         settings.addProperty("savePath", savePath); // Update the save path in the JSON object
 
