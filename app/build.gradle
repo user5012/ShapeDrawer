@@ -47,7 +47,7 @@ shadowJar {
     // Configure the shadow JAR task to create a fat JAR.
     archiveBaseName.set('shape-drawer')
     archiveClassifier.set('')
-    archiveVersion.set('1.1.0')
+    archiveVersion.set('1.1.1')
     mergeServiceFiles()
     manifest {
         attributes(

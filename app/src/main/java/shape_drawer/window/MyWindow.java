@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -45,7 +48,7 @@ public class MyWindow {
     private final Map<MyShape, Point> dragOffsets = new HashMap<>();
     private boolean clickedShape = false; // Flag to check if a shape is clicked
     private Vector2d canvasDimensionsVector2d = new Vector2d(500, 500); // Variable to store mouse position
-    private JPanel canva = new JPanel(); // Panel to draw shapes
+    private JPanel canva;
     private DrawnLine currLine = null;
     private MySettings settings = new MySettings(); // Settings object to manage save path
 
@@ -54,6 +57,7 @@ public class MyWindow {
         this.width = 400; // Set the width of the window
         this.height = 800; // Set the height of the window
         this.buttons = createButtons(); // Create buttons for the window
+        this.canva = canvas(canvasDimensionsVector2d.getX(), canvasDimensionsVector2d.getY()); // Create the canvas
         craftWindow();
 
     }
@@ -72,18 +76,21 @@ public class MyWindow {
         canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight)); // Set the preferred size of the panel
         canvas.setBackground(Color.lightGray); // Set the background color of the panel
         canvas.setLayout(null); // Use null layout for absolute positioning
-        canva = canvas; // Assign the canvas to the class variable
         return canvas; // Return the panel
     }
 
     private JPanel buttonsPanel() {
         JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new FlowLayout()); // Use FlowLayout for the buttons panel
+        // buttonsPanel.setLayout(new FlowLayout()); // Use FlowLayout for the buttons
+        // panel
         buttonsPanel.setPreferredSize(new Dimension(200, 500));
-        buttonsPanel.setLayout(new GridLayout(0, 1)); // Use GridLayout for the buttons panel
-        buttonsPanel.setBackground(Color.lightGray); // Set the background color of the buttons panel
-        for (JButton button : buttons) {
-            buttonsPanel.add(button); // Add the button to the buttons panel
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); // Use BoxLayout for the buttons panel
+        buttonsPanel.setBackground(new Color(211, 211, 211)); // Set the background color of the buttons panel
+        for (int i = 0; i < buttons.size(); i++) {
+            buttonsPanel.add(buttons.get(i));
+            if (i < buttons.size() - 1) {
+                buttonsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
         }
         return buttonsPanel; // Return the buttons panel
     }
@@ -92,56 +99,128 @@ public class MyWindow {
         this.frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
-        frame.setLayout(new FlowLayout()); // Use FlowLayout for the frame
-        frame.add(canvas(500, 500)); // Add the canvas to the frame
-        frame.add(buttonsPanel()); // Add the buttons panel to the frame
+        frame.setLayout(new BorderLayout()); // Use BorderLayout for the frame
+        frame.add(canva, BorderLayout.CENTER); // Add the canvas to the center of the frame
+        frame.add(buttonsPanel(), BorderLayout.WEST); // Add the buttons panel to the right of the frame
         frame.pack(); // Pack the frame to fit the components
 
     }
 
     private static JButton createButton(String text, int x, int y, int width, int height, Runnable action) {
         JButton button = new JButton(text);
-        button.setBounds(x, y, width, height); // Set button position and size
+        button.setBounds(x, y, width, height); // Set the position and size of the button
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13)); // Set the font of the button
+        button.setBackground(Color.WHITE); // Modern blue color
+        button.setForeground(Color.BLACK); // Set the text color to black
+        button.setFocusPainted(false); // Remove focus border
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Change cursor to hand on hover
+        button.setOpaque(false); // Make the button transparent
+
+        // Custom painting for rounded corners and hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185)); // Slightly darker on hover
+                button.repaint();
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(Color.WHITE); // Change back to original color
+                button.repaint();
+            }
+        });
+
         button.addActionListener(e -> action.run()); // Add action listener to the button
+
+        return button; // Return the created button
+    }
+
+    private static JButton createControlButton(String text, int x, int y, Runnable action) {
+        JButton button = new JButton(text);
+        // Modern flat style
+        button.setPreferredSize(new Dimension(100, 50));
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50)); // Allow the button to stretch horizontally
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setBackground(new Color(52, 152, 219)); // Modern blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setOpaque(false);
+
+        // Rounded corners
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+
+        // Custom painting for rounded corners and hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(41, 128, 185)); // Slightly darker on hover
+                button.repaint();
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(52, 152, 219));
+                button.repaint();
+            }
+        });
+
+        button.addActionListener(e -> action.run());
+
+        // Paint rounded background
+        button.setUI(new javax.swing.plaf.basic.BasicButtonUI() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(button.getBackground());
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
+                super.paint(g, c);
+                g2.dispose();
+            }
+        });
         return button;
     }
 
     private List<JButton> createButtons() {
         List<JButton> buttons = new ArrayList<>();
-        buttons.add(createButton("Add Circle", 100, 50, 100, 30, () -> {
+        buttons.add(createControlButton("Add Circle", 100, 50, () -> {
             buttonPressedType = ButtonPressedType.ADD_CIRCLE; // Set the button pressed type to
         }));
-        buttons.add(createButton("Add Rectangle", 100, 50, 100, 90, () -> {
+        buttons.add(createControlButton("Add Rectangle", 100, 50, () -> {
             buttonPressedType = ButtonPressedType.ADD_RECTANGLE; // Set the button pressed type
                                                                  // to
         }));
-        buttons.add(createButton("Select Shape", 100, 50, 100, 130, () -> {
+        buttons.add(createControlButton("Select Shape", 100, 50, () -> {
             buttonPressedType = ButtonPressedType.SELECT_SHAPE; // Set the button pressed type
         }));
-        buttons.add(createButton("Move All Shapes", 100, 50, 100, 90, () -> {
+        buttons.add(createControlButton("Move All Shapes", 100, 50, () -> {
             for (MyShape shape : shapes) {
                 shape.setX(shape.getX() + 10); // Move all shapes to the right by 10 pixels
                 shape.setY(shape.getY() + 10); // Move all shapes down by 10 pixels
             }
             frame.repaint(); // Repaint the frame to update the shapes
         }));
-        buttons.add(createButton("Draw Line", 100, 50, 100, 130, () -> {
+        buttons.add(createControlButton("Draw Line", 100, 50, () -> {
             buttonPressedType = ButtonPressedType.DRAW_LINE;
         }));
-        buttons.add(createButton("Delete All Shapes", 100, 50, 100, 130, () -> {
+        buttons.add(createControlButton("Delete All Shapes", 100, 50, () -> {
             shapes.clear(); // Clear the list of shapes
             selectedShapes.clear(); // Clear the list of selected shapes
             currLine = null; // Clear the current line
             frame.repaint(); // Repaint the frame to update the shapes
         }));
-        buttons.add(createButton("Export Image", 100, 50, 100, 170, () -> {
+        buttons.add(createControlButton("Export Image", 100, 50, () -> {
             // saveImage(getJSONPath()); // Call the saveImage method to export the image
 
             SwingUtilities.invokeLater(() -> saveImage(settings.getSavePath())); // Use SwingUtilities to ensure the
                                                                                  // saveImage
             // method is called on the Event Dispatch Thread
         }));
-        buttons.add(createButton("change Save Path", 100, 50, 100, 210, () -> {
+        buttons.add(createControlButton("change Save Path", 100, 50, () -> {
             java.util.List<JComponent> components = new ArrayList<>();
 
             // Create a mutable holder for subWindow
@@ -188,40 +267,20 @@ public class MyWindow {
         canva.doLayout();
         canva.repaint();
 
-        Dimension preferredSize = canva.getPreferredSize();
+        Dimension CanvaSize = canva.getSize();
 
-        int width = preferredSize.width; // Get the width of the canvas
-        int height = preferredSize.height; // Get the height of the canvas
+        int width = CanvaSize.width; // Get the width of the canvas
+        int height = CanvaSize.height; // Get the height of the canvas
+
         if (width <= 0 || height <= 0) {
             System.err.println(
                     "Error: Canvas size is invalid. Cannot export image.\nWidth: " + width + ", Height: " + height);
             return; // Abort if the canvas size is invalid to avoid crash
         }
 
-        // Use preferred size if actual size is not valid yet
-        /*
-         * if (width <= 0 || height <= 0) {
-         * Dimension preferredSize = canva.getPreferredSize();
-         * width = preferredSize.width;
-         * height = preferredSize.height;
-         * 
-         * // Still bad? Abort to avoid crash
-         * if (width <= 0 || height <= 0) {
-         * System.err.println("Error: Canvas size is invalid. Cannot export image.");
-         * return;
-         * }
-         * }
-         */
-
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
-        g2d.setColor(canva.getBackground());
-        g2d.fillRect(0, 0, width, height);
-
-        // Paint shapes directly
-        for (MyShape shape : shapes) {
-            shape.draw(g2d);
-        }
+        canva.printAll(g2d); // Print the canvas to the graphics context
 
         g2d.dispose(); // Dispose of the graphics context to release resources
 
@@ -234,6 +293,7 @@ public class MyWindow {
     }
 
     public void initializeMouseListeners() {
+
         canva.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) {
