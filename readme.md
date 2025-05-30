@@ -17,6 +17,9 @@ A simple Java desktop application that allows users to draw, select, and move ba
 - Gradle (build tool)
 - Java Swing or JavaFX (for GUI)
 
+## 📸 ScreenShot
+> ![App ScreenShot](./app/src/resources/images/ScreenShot.png)
+
 ## Getting Started
 
 ### Prerequisites
