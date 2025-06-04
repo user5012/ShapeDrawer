@@ -18,6 +18,7 @@ A simple Java desktop application that allows users to draw, select, and move ba
 - Java Swing or JavaFX (for GUI)
 
 ## 📸 ScreenShot
+>
 > ![App ScreenShot](./app/src/resources/images/ScreenShot.png)
 
 ## Getting Started
@@ -53,8 +54,6 @@ gradle run
 - Support for color and stroke width customization
 
 - Save and load drawing projects
-
-- Export as image
 
 ## License
 
