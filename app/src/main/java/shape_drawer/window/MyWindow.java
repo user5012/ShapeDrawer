@@ -7,6 +7,8 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -216,8 +218,12 @@ public class MyWindow {
         buttons.add(createControlButton("Export Image", 100, 50, () -> {
             // saveImage(getJSONPath()); // Call the saveImage method to export the image
 
-            SwingUtilities.invokeLater(() -> saveImage(settings.getSavePath())); // Use SwingUtilities to ensure the
-                                                                                 // saveImage
+            SwingUtilities.invokeLater(() -> {
+                saveImage(settings.getSavePath());
+                showImage(); // Show the image after saving
+            }); // Use SwingUtilities to ensure the
+                // saveImage
+
             // method is called on the Event Dispatch Thread
         }));
         buttons.add(createControlButton("change Save Path", 100, 50, () -> {
@@ -239,11 +245,46 @@ public class MyWindow {
             components.add(saveButton);
 
             // Now create and assign the subWindow
-            subWindow[0] = new MySubWindow(frame, "Change Save Path", 300, 200, components, false);
+            subWindow[0] = new MySubWindow(frame, "Change Save Path", 300, 200, components, false, null, false);
             subWindow[0].show(); // Show the subWindow
         }));
 
         return buttons;
+    }
+
+    private void showImage() {
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(new File(settings.getSavePath()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ImageIcon imageIcon = img != null ? new ImageIcon(img) : new ImageIcon(); // Load the image from the save path
+        int height = frame.getHeight(); // Get the height of the frame and add padding
+        int width = frame.getWidth();
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // Add 10px padding at the top
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        JLabel label = new JLabel("Saved at: " + settings.getSavePath());
+        label.setAlignmentX(Component.CENTER_ALIGNMENT); // Center horizontally
+        panel.add(label);
+
+        // Add 10px padding between label and image
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        JLabel imageLabel = new JLabel(imageIcon);
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center image
+        panel.add(imageLabel);
+        List<JComponent> components = new ArrayList<>();
+        components.add(panel); // Add the panel with the image to the components list
+
+        MySubWindow imageWindow = new MySubWindow(frame, "Image Viewer", width, height, components, false, null, false);
+        imageWindow.show(); // Show the image window
     }
 
     public void ShowWindow() {

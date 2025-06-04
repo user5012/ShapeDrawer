@@ -1,6 +1,7 @@
 package shape_drawer.window;
 
 import java.util.List;
+import java.awt.LayoutManager;
 import java.util.ArrayList;
 
 import javax.swing.JDialog;
@@ -15,6 +16,8 @@ public class MySubWindow {
     private JDialog jDialog;
     private List<JComponent> components = new ArrayList<>();
     private boolean isResizable;
+    private LayoutManager layout;
+    private boolean wantLayout;
 
     /**
      * Constructor for MySubWindow.
@@ -24,16 +27,19 @@ public class MySubWindow {
      * @param height      The height of the sub-window.
      * @param components  A list of JComponents to be added to the sub-window.
      * @param isResizable Whether the sub-window is resizable.
+     * @param layout      The layout manager to be used for the sub-window.
      */
 
     public MySubWindow(JFrame parent, String title, int width, int height, List<JComponent> components,
-            boolean isResizable) {
+            boolean isResizable, LayoutManager layout, boolean wantLayout) {
         this.title = title;
         this.width = width;
         this.height = height;
         this.jDialog = new JDialog(parent, title, true);
         this.components = components;
         this.isResizable = isResizable;
+        this.layout = layout;
+        this.wantLayout = wantLayout;
         initialize();
     }
 
@@ -52,6 +58,9 @@ public class MySubWindow {
         jDialog.setLocationRelativeTo(null); // Center the window on the screen
         jDialog.setContentPane(createContentPanel());
         jDialog.setResizable(isResizable); // Set the resizable property
+        if (wantLayout) {
+            jDialog.getContentPane().setLayout(layout); // Set the layout manager if provided
+        }
         System.out.println("Sub-window initialized: " + title + " with dimensions " + width + "x" + height);
     }
 
